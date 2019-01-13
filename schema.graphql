@@ -1,0 +1,65 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    allProducts(onlyAvailable: Boolean): [Product!]!
+    product(productId: String!): Product
+
+#    showCart: [ProductOrder!]!
+}
+
+scalar Money
+scalar Time
+
+type Product {
+    id: String!
+    title: String!
+    price: Money!
+    inventoryCount: Int!
+}
+
+type ProductOrder {
+    product: Product!
+    quantity: Int!
+}
+
+type Purchase {
+    id: String!
+    products: [ProductOrder!]!
+    purchasedAt: Time!
+    paid: Money!
+    shippingAddress: Address!
+}
+
+type Address {
+    name: String!
+    addressFirstLine: String!
+    addressSecondLine: String
+    city: String!
+    postalCode: String!
+    country: String!
+}
+
+type Mutation {
+    purchaseProduct(productId: String!, quantity: Int!, purchaseInput: PurchaseInput!): Purchase
+
+#    createCart: String!
+#    addToCart(productId: String, quantity: Int!): [ProductOrder!]!
+#    checkoutCart(purchaseInput: PurchaseInput!): Purchase
+}
+
+input PurchaseInput {
+    customerName: String!
+    addressFirstLine: String!
+    addressSecondLine: String
+    city: String!
+    postalCode: String!
+    country: String!
+
+    creditCardHolder: String!
+    creditCardNumber: String!
+    creditCardExpires: Int!
+    creditCardCVV: Int!
+}
