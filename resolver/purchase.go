@@ -43,7 +43,7 @@ func (p *PurchaseResolver) Products() []*ProductOrderResolver {
 }
 
 func (p *PurchaseResolver) PurchasedAt() graphql.Time {
-	return graphql.Time{Time: p.purchase.PurchasedAt}
+	return graphql.Time{Time: p.purchase.CreatedAt}
 }
 
 func (p *PurchaseResolver) Paid() Money {
