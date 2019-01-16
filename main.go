@@ -35,7 +35,7 @@ func readSchema() string {
 }
 
 func createGorm() *gorm.DB {
-	db, err := gorm.Open("sqlite3", "/database.db")
+	db, err := gorm.Open("sqlite3", "database.db")
 	if err != nil {
 		panic(err)
 	}

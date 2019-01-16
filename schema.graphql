@@ -10,13 +10,12 @@ type Query {
 #    showCart: [ProductOrder!]!
 }
 
-scalar Money
 scalar Time
 
 type Product {
     id: String!
     title: String!
-    price: Money!
+    price: Float!
     inventoryCount: Int!
 }
 
@@ -29,7 +28,7 @@ type Purchase {
     id: String!
     products: [ProductOrder!]!
     purchasedAt: Time!
-    paid: Money!
+    paid: Float!
     shippingAddress: Address!
 }
 

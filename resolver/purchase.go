@@ -43,11 +43,11 @@ func (p *PurchaseResolver) Products() []*ProductOrderResolver {
 }
 
 func (p *PurchaseResolver) PurchasedAt() graphql.Time {
-	return graphql.Time{Time: p.purchase.CreatedAt}
+	return graphql.Time{Time: p.purchase.PurchasedAt}
 }
 
-func (p *PurchaseResolver) Paid() Money {
-	return Money{p.purchase.Paid}
+func (p *PurchaseResolver) Paid() float64 {
+	return p.purchase.Paid
 }
 
 func (p *PurchaseResolver) ShippingAddress() *AddressResolver {
@@ -61,7 +61,7 @@ type ProductOrderResolver struct {
 }
 
 func (o *ProductOrderResolver) Product() *ProductResolver {
-	return &ProductResolver{product: o.productOrder.Product()}
+	return &ProductResolver{product: &o.productOrder.Product}
 }
 
 func (o *ProductOrderResolver) Quantity() int32 {

@@ -1,13 +1,11 @@
 package model
 
-import (
-	"github.com/jinzhu/gorm"
-)
+import "time"
 
 type Purchase struct {
-	gorm.Model
 	Id              string `gorm:"primary_key"`
 	Products        []*ProductOrder
-	Paid            Money
+	Paid            float64
 	ShippingAddress *Address
+	PurchasedAt     time.Time
 }

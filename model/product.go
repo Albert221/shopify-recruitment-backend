@@ -1,11 +1,8 @@
 package model
 
-import "github.com/jinzhu/gorm"
-
 type Product struct {
-	gorm.Model
 	Id             string `gorm:"primary_key"`
 	Title          string
-	Price          Money
+	Price          float64
 	InventoryCount int
 }
