@@ -20,7 +20,11 @@ func (c *RootResolver) AllProducts(args struct{ OnlyAvailable *bool }) []*Produc
 
 func (c *RootResolver) Product(args struct{ ProductId string }) *ProductResolver {
 	var product model.Product
-	c.db.First(&product, args.ProductId)
+	c.db.First(&product, "id = ?", args.ProductId)
+
+	if product.Id == "" {
+		return nil
+	}
 
 	return &ProductResolver{product: &product}
 }

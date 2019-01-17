@@ -14,6 +14,7 @@ import (
 
 func main() {
 	db := createGorm()
+	defer db.Close()
 
 	db.AutoMigrate(&model.Product{}, &model.ProductOrder{}, &model.Purchase{})
 
