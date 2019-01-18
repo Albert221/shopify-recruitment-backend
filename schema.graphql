@@ -52,7 +52,7 @@ type Mutation {
 input PurchaseInput {
     customerName: String!
     addressFirstLine: String!
-    addressSecondLine: String
+    addressSecondLine: String!
     city: String!
     postalCode: String!
     country: String!

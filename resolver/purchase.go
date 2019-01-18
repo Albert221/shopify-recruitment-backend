@@ -12,25 +12,38 @@ type PurchaseResolver struct {
 type PurchaseInput struct {
 	CustomerName      string
 	AddressFirstLine  string
-	AddressSecondLine *string
+	AddressSecondLine string
 	City              string
 	PostalCode        string
 	Country           string
 
 	CreditCardHolder  string
 	CreditCardNumber  string
-	CreditCardExpires string
+	CreditCardExpires int32
 	CreditCardCVV     int32
 }
 
 type purchaseProductArgs struct {
 	ProductId     string
-	Quantity      *int32
+	Quantity      int32
 	PurchaseInput *PurchaseInput
 }
 
 func (c *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResolver, error) {
-	return nil, nil
+	// TODO: Validation
+
+	productOrder := model.NewProductOrder(args.ProductId, int(args.Quantity))
+
+	purchase := model.NewPurchase([]*model.ProductOrder{productOrder}, 1, &model.Address{
+		Name:       args.PurchaseInput.CustomerName,
+		FirstLine:  args.PurchaseInput.AddressFirstLine,
+		SecondLine: args.PurchaseInput.AddressSecondLine,
+		City:       args.PurchaseInput.City,
+		PostalCode: args.PurchaseInput.PostalCode,
+		Country:    args.PurchaseInput.Country,
+	})
+
+	return &PurchaseResolver{purchase: purchase}, nil
 }
 
 func (p *PurchaseResolver) Id() string {
@@ -38,8 +51,13 @@ func (p *PurchaseResolver) Id() string {
 }
 
 func (p *PurchaseResolver) Products() []*ProductOrderResolver {
-	// todo
-	return nil
+	var resolvers []*ProductOrderResolver
+
+	for _, productOrder := range p.purchase.Products {
+		resolvers = append(resolvers, &ProductOrderResolver{productOrder: productOrder})
+	}
+
+	return resolvers
 }
 
 func (p *PurchaseResolver) PurchasedAt() graphql.Time {
