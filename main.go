@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/Albert221/shopify-recruitment-backend/model"
+	"github.com/Albert221/shopify-recruitment-backend/database"
+	"github.com/Albert221/shopify-recruitment-backend/domain"
 	"github.com/Albert221/shopify-recruitment-backend/resolver"
+	"github.com/Albert221/shopify-recruitment-backend/stripe"
 	"github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/relay"
 	"github.com/jinzhu/gorm"
@@ -16,9 +18,12 @@ func main() {
 	db := createGorm()
 	defer db.Close()
 
-	db.AutoMigrate(&model.Product{}, &model.ProductOrder{}, &model.Purchase{})
+	// Resolver dependencies
+	productsRepo := database.NewProductRepository(db)
+	purchaseRepo := database.NewPurchaseRepository(db)
+	stripeGate := stripe.PaymentGate{}
 
-	rootResolver := resolver.NewRootResolver(db)
+	rootResolver := resolver.NewRootResolver(productsRepo, purchaseRepo, stripeGate)
 
 	schema := graphql.MustParseSchema(readSchema(), rootResolver)
 	http.Handle("/api", &relay.Handler{Schema: schema})
@@ -41,5 +46,7 @@ func createGorm() *gorm.DB {
 		panic(err)
 	}
 
-	return db
+	db.AutoMigrate(&domain.Product{}, &domain.ProductOrder{}, &domain.Purchase{})
+
+	return db.Debug()
 }

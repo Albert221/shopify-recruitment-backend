@@ -1,12 +1,14 @@
 package resolver
 
 import (
-	"github.com/Albert221/shopify-recruitment-backend/model"
+	"github.com/Albert221/shopify-recruitment-backend/domain"
+	"github.com/Albert221/shopify-recruitment-backend/domain/service"
 	"github.com/graph-gophers/graphql-go"
+	"github.com/pkg/errors"
 )
 
 type PurchaseResolver struct {
-	purchase *model.Purchase
+	purchase *domain.Purchase
 }
 
 type PurchaseInput struct {
@@ -30,11 +32,29 @@ type purchaseProductArgs struct {
 }
 
 func (c *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResolver, error) {
-	// TODO: Validation
+	// TODO: Validation, check if products available
 
-	productOrder := model.NewProductOrder(args.ProductId, int(args.Quantity))
+	product := c.productsRepo.Get(args.ProductId)
+	if product == nil {
+		return nil, errors.New("given product does not exist")
+	}
 
-	purchase := model.NewPurchase([]*model.ProductOrder{productOrder}, 1, &model.Address{
+	charge := product.Price
+
+	// *Get money from credit card*
+	err := c.paymentGate.Charge(&service.CreditCardDetails{
+		Holder:  args.PurchaseInput.CreditCardHolder,
+		Number:  args.PurchaseInput.CreditCardNumber,
+		Expires: int(args.PurchaseInput.CreditCardExpires),
+		CVV:     int(args.PurchaseInput.CreditCardCVV),
+	}, charge)
+	if err != nil {
+		return nil, errors.Wrap(err, "problem with payment has occurred")
+	}
+
+	// Create purchase object
+	productOrder := domain.NewProductOrder(args.ProductId, int(args.Quantity))
+	purchase := domain.NewPurchase([]domain.ProductOrder{*productOrder}, charge, &domain.Address{
 		Name:       args.PurchaseInput.CustomerName,
 		FirstLine:  args.PurchaseInput.AddressFirstLine,
 		SecondLine: args.PurchaseInput.AddressSecondLine,
@@ -42,6 +62,11 @@ func (c *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResol
 		PostalCode: args.PurchaseInput.PostalCode,
 		Country:    args.PurchaseInput.Country,
 	})
+
+	// Add purchase to db and remove quantities of products
+	if err := c.purchaseRepo.Purchase(purchase); err != nil {
+		return nil, errors.Wrap(err, "problem with purchase has occured")
+	}
 
 	return &PurchaseResolver{purchase: purchase}, nil
 }
@@ -54,7 +79,7 @@ func (p *PurchaseResolver) Products() []*ProductOrderResolver {
 	var resolvers []*ProductOrderResolver
 
 	for _, productOrder := range p.purchase.Products {
-		resolvers = append(resolvers, &ProductOrderResolver{productOrder: productOrder})
+		resolvers = append(resolvers, &ProductOrderResolver{productOrder: &productOrder})
 	}
 
 	return resolvers
@@ -75,7 +100,7 @@ func (p *PurchaseResolver) ShippingAddress() *AddressResolver {
 // ProductOrder
 
 type ProductOrderResolver struct {
-	productOrder *model.ProductOrder
+	productOrder *domain.ProductOrder
 }
 
 func (o *ProductOrderResolver) Product() *ProductResolver {
@@ -89,7 +114,7 @@ func (o *ProductOrderResolver) Quantity() int32 {
 // Address
 
 type AddressResolver struct {
-	address *model.Address
+	address *domain.Address
 }
 
 func (a *AddressResolver) Name() string {
