@@ -3,7 +3,7 @@ package resolver
 import "github.com/Albert221/shopify-recruitment-backend/model"
 
 func (c *RootResolver) AllProducts(args struct{ OnlyAvailable *bool }) []*ProductResolver {
-	var products []model.Product
+	var products []*model.Product
 	if args.OnlyAvailable != nil && *args.OnlyAvailable {
 		c.db.Where("inventory_count > 0").Find(&products)
 	} else {
@@ -12,21 +12,21 @@ func (c *RootResolver) AllProducts(args struct{ OnlyAvailable *bool }) []*Produc
 
 	var productResolvers []*ProductResolver
 	for _, product := range products {
-		productResolvers = append(productResolvers, &ProductResolver{product: &product})
+		productResolvers = append(productResolvers, &ProductResolver{product: product})
 	}
 
 	return productResolvers
 }
 
 func (c *RootResolver) Product(args struct{ ProductId string }) *ProductResolver {
-	var product model.Product
+	var product *model.Product
 	c.db.First(&product, "id = ?", args.ProductId)
 
 	if product.Id == "" {
 		return nil
 	}
 
-	return &ProductResolver{product: &product}
+	return &ProductResolver{product: product}
 }
 
 type ProductResolver struct {
