@@ -51,7 +51,7 @@ type Mutation {
 
     createCart: String!
     addToCart(productId: String!, quantity: Int!): Cart!
-#    checkoutCart(purchaseInput: PurchaseInput!): Purchase
+    checkoutCart(purchaseInput: PurchaseInput!): Purchase
 }
 
 input PurchaseInput {

@@ -8,22 +8,9 @@ import (
 )
 
 func (r *RootResolver) ShowCart(ctx context.Context) (*CartResolver, error) {
-	claims := r.getClaims(ctx)
-	if claims == nil {
-		return nil, errors.New("user unauthorized")
-	}
+	cart, err := r.getCart(ctx)
 
-	cartId, ok := claims["cartId"]
-	if !ok {
-		return nil, nil
-	}
-
-	cart := r.cartRepo.Get(cartId.(string))
-	if cart == nil {
-		return nil, errors.New("invalid token, no cart")
-	}
-
-	return &CartResolver{cart: cart}, nil
+	return &CartResolver{cart: cart}, err
 }
 
 func (r *RootResolver) CreateCart() (string, error) {
@@ -43,21 +30,10 @@ type addToCartArgs struct {
 }
 
 func (r *RootResolver) AddToCart(ctx context.Context, args addToCartArgs) (*CartResolver, error) {
-	claims := r.getClaims(ctx)
-	if claims == nil {
-		return nil, errors.New("user unauthorized")
+	cart, err := r.getCart(ctx)
+	if err != nil {
+		return nil, err
 	}
-
-	cartId, ok := claims["cartId"]
-	if !ok {
-		return nil, nil
-	}
-
-	cart := r.cartRepo.Get(cartId.(string))
-	if cart == nil {
-		return nil, errors.New("invalid token, no cart")
-	}
-	// FIXME: Keep stuff above DRY!
 
 	product := r.productsRepo.Get(args.ProductId)
 	if product == nil {
@@ -82,6 +58,25 @@ func (r *RootResolver) AddToCart(ctx context.Context, args addToCartArgs) (*Cart
 	cart = r.cartRepo.Get(cart.Id)
 
 	return &CartResolver{cart: cart}, nil
+}
+
+func (r *RootResolver) getCart(ctx context.Context) (*domain.Cart, error) {
+	claims := r.getClaims(ctx)
+	if claims == nil {
+		return nil, errors.New("no cart token")
+	}
+
+	cartId, ok := claims["cartId"]
+	if !ok {
+		return nil, errors.New("invalid token, no cart")
+	}
+
+	cart := r.cartRepo.Get(cartId.(string))
+	if cart == nil {
+		return nil, errors.New("invalid token, no cart")
+	}
+
+	return cart, nil
 }
 
 type CartResolver struct {

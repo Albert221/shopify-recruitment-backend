@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"context"
 	"github.com/Albert221/shopify-recruitment-backend/domain"
 	"github.com/Albert221/shopify-recruitment-backend/domain/service"
 	"github.com/graph-gophers/graphql-go"
@@ -32,7 +33,7 @@ type purchaseProductArgs struct {
 }
 
 func (r *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResolver, error) {
-	// TODO: Validation, check if products are available!
+	// TODO: Input validation, negative quantity etc.
 
 	product := r.productsRepo.Get(args.ProductId)
 	if product == nil {
@@ -40,27 +41,56 @@ func (r *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResol
 	}
 
 	charge := product.Price
+	productIdQuantity := map[string]int{args.ProductId: int(args.Quantity)}
+
+	return r.purchaseProducts(args.PurchaseInput, productIdQuantity, charge)
+}
+
+func (r *RootResolver) CheckoutCart(ctx context.Context, args struct{ PurchaseInput PurchaseInput }) (*PurchaseResolver, error) {
+	// TODO: Input validation, negative quantity etc.
+
+	cart, err := r.getCart(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	charge := 0.0
+	productIdQuantity := make(map[string]int)
+	for _, order := range cart.Products {
+		charge += order.Product.Price * float64(order.Quantity)
+		productIdQuantity[order.ProductId] = order.Quantity
+	}
+
+	return r.purchaseProducts(&args.PurchaseInput, productIdQuantity, charge)
+}
+
+func (r *RootResolver) purchaseProducts(input *PurchaseInput, productIdQuantity map[string]int, charge float64) (*PurchaseResolver, error) {
+	// TODO: Check if products are available!!!
 
 	// *Get money from credit card*
 	err := r.paymentGate.Charge(&service.CreditCardDetails{
-		Holder:  args.PurchaseInput.CreditCardHolder,
-		Number:  args.PurchaseInput.CreditCardNumber,
-		Expires: int(args.PurchaseInput.CreditCardExpires),
-		CVV:     int(args.PurchaseInput.CreditCardCVV),
+		Holder:  input.CreditCardHolder,
+		Number:  input.CreditCardNumber,
+		Expires: int(input.CreditCardExpires),
+		CVV:     int(input.CreditCardCVV),
 	}, charge)
 	if err != nil {
 		return nil, errors.Wrap(err, "problem with payment has occurred")
 	}
 
 	// Create purchase object
-	productOrder := domain.NewProductOrder(args.ProductId, int(args.Quantity))
-	purchase := domain.NewPurchase([]domain.ProductOrder{*productOrder}, charge, &domain.Address{
-		Name:       args.PurchaseInput.CustomerName,
-		FirstLine:  args.PurchaseInput.AddressFirstLine,
-		SecondLine: args.PurchaseInput.AddressSecondLine,
-		City:       args.PurchaseInput.City,
-		PostalCode: args.PurchaseInput.PostalCode,
-		Country:    args.PurchaseInput.Country,
+	var productOrders []domain.ProductOrder
+	for productId, quantity := range productIdQuantity {
+		productOrders = append(productOrders, *domain.NewProductOrder(productId, quantity))
+	}
+
+	purchase := domain.NewPurchase(productOrders, charge, &domain.Address{
+		Name:       input.CustomerName,
+		FirstLine:  input.AddressFirstLine,
+		SecondLine: input.AddressSecondLine,
+		City:       input.City,
+		PostalCode: input.PostalCode,
+		Country:    input.Country,
 	})
 
 	// Add purchase to db and remove quantities of products
