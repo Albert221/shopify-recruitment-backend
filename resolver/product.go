@@ -1,13 +1,15 @@
 package resolver
 
-import "github.com/Albert221/shopify-recruitment-backend/domain"
+import (
+	"github.com/Albert221/shopify-recruitment-backend/domain"
+)
 
-func (c *RootResolver) AllProducts(args struct{ OnlyAvailable *bool }) []*ProductResolver {
+func (r *RootResolver) AllProducts(args struct{ OnlyAvailable *bool }) []*ProductResolver {
 	var products []*domain.Product
 	if args.OnlyAvailable != nil && *args.OnlyAvailable {
-		products = c.productsRepo.GetAvailable()
+		products = r.productsRepo.GetAvailable()
 	} else {
-		products = c.productsRepo.GetAll()
+		products = r.productsRepo.GetAll()
 	}
 
 	var productResolvers []*ProductResolver
@@ -18,8 +20,8 @@ func (c *RootResolver) AllProducts(args struct{ OnlyAvailable *bool }) []*Produc
 	return productResolvers
 }
 
-func (c *RootResolver) Product(args struct{ ProductId string }) *ProductResolver {
-	product := c.productsRepo.Get(args.ProductId)
+func (r *RootResolver) Product(args struct{ ProductId string }) *ProductResolver {
+	product := r.productsRepo.Get(args.ProductId)
 
 	if product == nil {
 		return nil

@@ -7,7 +7,7 @@ type Query {
     allProducts(onlyAvailable: Boolean): [Product!]!
     product(productId: String!): Product
 
-#    showCart: [ProductOrder!]!
+    showCart: Cart
 }
 
 scalar Time
@@ -41,11 +41,16 @@ type Address {
     country: String!
 }
 
+type Cart {
+    products: [ProductOrder!]!
+    total: Float!
+}
+
 type Mutation {
     purchaseProduct(productId: String!, quantity: Int!, purchaseInput: PurchaseInput!): Purchase
 
-#    createCart: String!
-#    addToCart(productId: String, quantity: Int!): [ProductOrder!]!
+    createCart: String!
+    addToCart(productId: String!, quantity: Int!): Cart!
 #    checkoutCart(purchaseInput: PurchaseInput!): Purchase
 }
 

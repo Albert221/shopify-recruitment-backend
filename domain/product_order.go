@@ -16,7 +16,6 @@ type ProductOrder struct {
 
 func NewProductOrder(productId string, quantity int) *ProductOrder {
 	return &ProductOrder{
-		Id:        uuid.New().String(),
 		ProductId: productId,
 		Quantity:  quantity,
 	}

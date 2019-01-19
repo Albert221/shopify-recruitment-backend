@@ -18,6 +18,10 @@ func (p *ProductRepository) Get(id string) *domain.Product {
 	var product domain.Product
 	p.db.First(&product, "id = ?", id)
 
+	if product.Id == "" {
+		return nil
+	}
+
 	return &product
 }
 

@@ -31,10 +31,10 @@ type purchaseProductArgs struct {
 	PurchaseInput *PurchaseInput
 }
 
-func (c *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResolver, error) {
-	// TODO: Validation, check if products available
+func (r *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResolver, error) {
+	// TODO: Validation, check if products are available!
 
-	product := c.productsRepo.Get(args.ProductId)
+	product := r.productsRepo.Get(args.ProductId)
 	if product == nil {
 		return nil, errors.New("given product does not exist")
 	}
@@ -42,7 +42,7 @@ func (c *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResol
 	charge := product.Price
 
 	// *Get money from credit card*
-	err := c.paymentGate.Charge(&service.CreditCardDetails{
+	err := r.paymentGate.Charge(&service.CreditCardDetails{
 		Holder:  args.PurchaseInput.CreditCardHolder,
 		Number:  args.PurchaseInput.CreditCardNumber,
 		Expires: int(args.PurchaseInput.CreditCardExpires),
@@ -64,7 +64,7 @@ func (c *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResol
 	})
 
 	// Add purchase to db and remove quantities of products
-	if err := c.purchaseRepo.Purchase(purchase); err != nil {
+	if err := r.purchaseRepo.Purchase(purchase); err != nil {
 		return nil, errors.Wrap(err, "problem with purchase has occured")
 	}
 
