@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"context"
+	"github.com/Albert221/shopify-recruitment-backend/config"
 	"github.com/Albert221/shopify-recruitment-backend/domain"
 	"github.com/Albert221/shopify-recruitment-backend/domain/service"
 	"github.com/dgrijalva/jwt-go"
@@ -12,12 +13,25 @@ type RootResolver struct {
 	purchaseRepo domain.PurchaseRepository
 	cartRepo     domain.CartRepository
 	paymentGate  service.PaymentGate
+	cfg          *config.Configuration
 }
 
-func NewRootResolver(productsRepo domain.ProductRepository, purchaseRepo domain.PurchaseRepository,
-	cartRepo domain.CartRepository, paymentGate service.PaymentGate) *RootResolver {
-	return &RootResolver{productsRepo: productsRepo, purchaseRepo: purchaseRepo, cartRepo: cartRepo,
-		paymentGate: paymentGate}
+type RootResolverArgs struct {
+	ProductsRepo  domain.ProductRepository
+	PurchaseRepo  domain.PurchaseRepository
+	CartRepo      domain.CartRepository
+	PaymentGate   service.PaymentGate
+	Configuration *config.Configuration
+}
+
+func NewRootResolver(args *RootResolverArgs) *RootResolver {
+	return &RootResolver{
+		productsRepo: args.ProductsRepo,
+		purchaseRepo: args.PurchaseRepo,
+		cartRepo:     args.CartRepo,
+		paymentGate:  args.PaymentGate,
+		cfg:          args.Configuration,
+	}
 }
 
 func (r *RootResolver) getClaims(ctx context.Context) jwt.MapClaims {

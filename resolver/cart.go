@@ -21,7 +21,7 @@ func (r *RootResolver) CreateCart() (string, error) {
 		"cartId": cart.Id,
 	})
 
-	return token.SignedString([]byte("secret")) // FIXME: Use secret #2
+	return token.SignedString(r.cfg.TokenSecret) // FIXME: Use secret #2
 }
 
 type addToCartArgs struct {
