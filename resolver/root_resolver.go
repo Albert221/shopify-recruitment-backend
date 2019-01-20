@@ -6,6 +6,7 @@ import (
 	"github.com/Albert221/shopify-recruitment-backend/domain"
 	"github.com/Albert221/shopify-recruitment-backend/domain/service"
 	"github.com/dgrijalva/jwt-go"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type RootResolver struct {
@@ -14,6 +15,7 @@ type RootResolver struct {
 	cartRepo     domain.CartRepository
 	paymentGate  service.PaymentGate
 	cfg          *config.Configuration
+	validator    *validator.Validate
 }
 
 type RootResolverArgs struct {
@@ -31,6 +33,7 @@ func NewRootResolver(args *RootResolverArgs) *RootResolver {
 		cartRepo:     args.CartRepo,
 		paymentGate:  args.PaymentGate,
 		cfg:          args.Configuration,
+		validator:    validator.New(),
 	}
 }
 

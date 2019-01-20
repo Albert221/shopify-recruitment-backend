@@ -13,27 +13,30 @@ type PurchaseResolver struct {
 }
 
 type PurchaseInput struct {
-	CustomerName      string
-	AddressFirstLine  string
+	CustomerName      string `validate:"required"`
+	AddressFirstLine  string `validate:"required"`
 	AddressSecondLine string
-	City              string
-	PostalCode        string
-	Country           string
+	City              string `validate:"required"`
+	PostalCode        string `validate:"required"`
+	Country           string `validate:"required"`
 
-	CreditCardHolder  string
-	CreditCardNumber  string
-	CreditCardExpires int32
-	CreditCardCVV     int32
+	CreditCardHolder  string `validate:"required"`
+	CreditCardNumber  string `validate:"required,min=19,numeric"`
+	CreditCardExpires string `validate:"required,len=4"`
+	CreditCardCVV     string `validate:"required,len=3"`
 }
 
 type purchaseProductArgs struct {
 	ProductId     string
-	Quantity      int32
+	Quantity      int32 `validate:"min=1"`
 	PurchaseInput *PurchaseInput
 }
 
 func (r *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResolver, error) {
-	// TODO: Input validation, negative quantity etc.
+	err := r.validator.Struct(args)
+	if err != nil {
+		return nil, err
+	}
 
 	product := r.productsRepo.Get(args.ProductId)
 	if product == nil {
@@ -47,7 +50,10 @@ func (r *RootResolver) PurchaseProduct(args purchaseProductArgs) (*PurchaseResol
 }
 
 func (r *RootResolver) CheckoutCart(ctx context.Context, args struct{ PurchaseInput PurchaseInput }) (*PurchaseResolver, error) {
-	// TODO: Input validation, negative quantity etc.
+	err := r.validator.Struct(args)
+	if err != nil {
+		return nil, err
+	}
 
 	cart, err := r.getCart(ctx)
 	if err != nil {
@@ -71,8 +77,8 @@ func (r *RootResolver) purchaseProducts(input *PurchaseInput, productIdQuantity 
 	err := r.paymentGate.Charge(&service.CreditCardDetails{
 		Holder:  input.CreditCardHolder,
 		Number:  input.CreditCardNumber,
-		Expires: int(input.CreditCardExpires),
-		CVV:     int(input.CreditCardCVV),
+		Expires: input.CreditCardExpires,
+		CVV:     input.CreditCardCVV,
 	}, charge)
 	if err != nil {
 		return nil, errors.Wrap(err, "problem with payment has occurred")

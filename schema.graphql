@@ -64,6 +64,6 @@ input PurchaseInput {
 
     creditCardHolder: String!
     creditCardNumber: String!
-    creditCardExpires: Int!
-    creditCardCVV: Int!
+    creditCardExpires: String!
+    creditCardCVV: String!
 }

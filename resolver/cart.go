@@ -21,12 +21,12 @@ func (r *RootResolver) CreateCart() (string, error) {
 		"cartId": cart.Id,
 	})
 
-	return token.SignedString(r.cfg.TokenSecret) // FIXME: Use secret #2
+	return token.SignedString(r.cfg.TokenSecret)
 }
 
 type addToCartArgs struct {
 	ProductId string
-	Quantity  int32
+	Quantity  int32 // fixme: validate if not negative
 }
 
 func (r *RootResolver) AddToCart(ctx context.Context, args addToCartArgs) (*CartResolver, error) {

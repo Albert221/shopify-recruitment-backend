@@ -14,6 +14,21 @@
   version = "v1.41.0"
 
 [[projects]]
+  name = "github.com/go-playground/locales"
+  packages = [
+    ".",
+    "currency"
+  ]
+  revision = "f63010822830b6fe52288ee52d5a1151088ce039"
+  version = "v0.12.1"
+
+[[projects]]
+  name = "github.com/go-playground/universal-translator"
+  packages = ["."]
+  revision = "b32fa301c9fe55953584134cb6853a13c87ec0a1"
+  version = "v0.16.0"
+
+[[projects]]
   name = "github.com/google/uuid"
   packages = ["."]
   revision = "9b3b1e0f5f99ae461456d768e7d301a7acdaa2d8"
@@ -56,6 +71,12 @@
   revision = "04140366298a54a039076d798123ffa108fff46c"
 
 [[projects]]
+  name = "github.com/leodido/go-urn"
+  packages = ["."]
+  revision = "70078a794e8ea4b497ba7c19a78cd60f90ccf0f4"
+  version = "v1.1.0"
+
+[[projects]]
   name = "github.com/mattn/go-sqlite3"
   packages = ["."]
   revision = "c7c4067b79cc51e6dfdcef5c702e74b1e0fa7c75"
@@ -83,9 +104,15 @@
   packages = ["context"]
   revision = "915654e7eabcea33ae277abbecf52f0d8b7a9fdc"
 
+[[projects]]
+  name = "gopkg.in/go-playground/validator.v9"
+  packages = ["."]
+  revision = "cdd5c28d217804eec51fa694927e6c57465748f6"
+  version = "v9.25.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cb68a299d538d2d33cbe51a8d4a03a53628287ad12ea5a5de2c4b214ac7dfc80"
+  inputs-digest = "22d3aad11476c4c297874948f9c3081784f166ae87370c2895b1599a22ccdc93"
   solver-name = "gps-cdcl"
   solver-version = 1

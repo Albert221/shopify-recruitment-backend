@@ -1,10 +1,10 @@
 package service
 
 type CreditCardDetails struct {
-	Holder string
-	Number string
-	Expires int
-	CVV int
+	Holder  string
+	Number  string
+	Expires string
+	CVV     string
 }
 
 type PaymentGate interface {
