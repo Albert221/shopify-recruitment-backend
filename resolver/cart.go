@@ -26,7 +26,7 @@ func (r *RootResolver) CreateCart() (string, error) {
 
 type addToCartArgs struct {
 	ProductId string
-	Quantity  int32 // fixme: validate if not negative
+	Quantity  int32 // FIXME: validate if not negative
 }
 
 func (r *RootResolver) AddToCart(ctx context.Context, args addToCartArgs) (*CartResolver, error) {
@@ -85,8 +85,8 @@ type CartResolver struct {
 
 func (c *CartResolver) Products() []*CartProductOrderResolver {
 	var resolvers []*CartProductOrderResolver
-	for _, order := range c.cart.Products {
-		resolvers = append(resolvers, &CartProductOrderResolver{productOrder: &order})
+	for i := range c.cart.Products {
+		resolvers = append(resolvers, &CartProductOrderResolver{productOrder: &c.cart.Products[i]})
 	}
 
 	return resolvers

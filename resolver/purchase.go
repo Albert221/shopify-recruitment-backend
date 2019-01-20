@@ -136,8 +136,8 @@ func (p *PurchaseResolver) Id() string {
 func (p *PurchaseResolver) Products() []*ProductOrderResolver {
 	var resolvers []*ProductOrderResolver
 
-	for _, productOrder := range p.purchase.Products {
-		resolvers = append(resolvers, &ProductOrderResolver{productOrder: &productOrder})
+	for i := range p.purchase.Products {
+		resolvers = append(resolvers, &ProductOrderResolver{productOrder: &p.purchase.Products[i]})
 	}
 
 	return resolvers
