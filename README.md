@@ -20,7 +20,7 @@ My plan was to create a GraphQL API with cart functionality with well-written co
 
 You can use one of the prebuilt binaries in the [Releases](https://github.com/Albert221/shopify-recruitment-backend/releases) section or build it yourself using instruction below.
 
-After first run, you can edit `config.ini` file and then re-run program with new settings.
+After first run, you can edit `config.ini` file and then re-run program with new settings. You probably also want to populate the `products` SQL table with some content.
 
 ### Requirements
 
