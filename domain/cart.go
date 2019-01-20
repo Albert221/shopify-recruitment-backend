@@ -14,6 +14,7 @@ func NewCart() *Cart {
 	return &Cart{}
 }
 
+// Total returns a total amount of money for products.
 func (c *Cart) Total() float64 {
 	total := 0.0
 	for _, order := range c.Products {

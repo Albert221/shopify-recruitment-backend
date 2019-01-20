@@ -13,6 +13,9 @@ func NewPurchaseRepository(db *gorm.DB) *PurchaseRepository {
 	return &PurchaseRepository{db: db}
 }
 
+// Purchase performs operations on database related to purchasing. Firstly, it saves the Purchase
+// object, then all corresponding PurchaseOrders and updates inventory count of Products. It returns
+// the Purchase object.
 func (p *PurchaseRepository) Purchase(purchase *domain.Purchase) error {
 	tx := p.db.Begin()
 	defer func() {

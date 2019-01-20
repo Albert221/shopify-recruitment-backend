@@ -10,6 +10,7 @@ import (
 
 const configFile = "config.ini"
 
+// Configuration is a collection of application-wide configuration variables.
 type Configuration struct {
 	Debug       bool
 	TokenSecret []byte
@@ -18,6 +19,7 @@ type Configuration struct {
 	DbFile      string
 }
 
+// LoadConfig loads Configuration from config.ini file and creates it if it does not exist.
 func LoadConfig() (*Configuration, error) {
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
 		err := createConfigFile()
@@ -59,7 +61,7 @@ func randomString(n int) string {
 
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = alphabet[rand.Int63() % int64(len(alphabet))]
+		b[i] = alphabet[rand.Int63()%int64(len(alphabet))]
 	}
 	return string(b)
 }

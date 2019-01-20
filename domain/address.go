@@ -1,5 +1,6 @@
 package domain
 
+// Address is a physical address of a consumer.
 type Address struct {
 	Name string
 	FirstLine string
