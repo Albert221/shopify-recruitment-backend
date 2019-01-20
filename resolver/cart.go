@@ -26,10 +26,15 @@ func (r *RootResolver) CreateCart() (string, error) {
 
 type addToCartArgs struct {
 	ProductId string
-	Quantity  int32 // FIXME: validate if not negative
+	Quantity  int32 `validate:"min=1"`
 }
 
 func (r *RootResolver) AddToCart(ctx context.Context, args addToCartArgs) (*CartResolver, error) {
+	err := r.validator.Struct(args)
+	if err != nil {
+		return nil, err
+	}
+
 	cart, err := r.getCart(ctx)
 	if err != nil {
 		return nil, err
