@@ -30,8 +30,8 @@ func (p *ProductRepository) GetMany(ids []string) []*domain.Product {
 
 	stmts := strings.TrimRight(strings.Repeat("?, ", len(ids)), ", ")
 	params := make([]interface{}, len(stmts))
-	for i, stmt := range stmts {
-		params[i] = stmt
+	for i, id := range ids {
+		params[i] = id
 	}
 
 	p.db.Where("id IN (" + stmts + ")", params...).Find(&products)

@@ -21,7 +21,7 @@ type PurchaseInput struct {
 	Country           string `validate:"required"`
 
 	CreditCardHolder  string `validate:"required"`
-	CreditCardNumber  string `validate:"required,min=19,numeric"`
+	CreditCardNumber  string `validate:"required,len=19,numeric"`
 	CreditCardExpires string `validate:"required,len=4"`
 	CreditCardCVV     string `validate:"required,len=3"`
 }
@@ -71,7 +71,9 @@ func (r *RootResolver) CheckoutCart(ctx context.Context, args struct{ PurchaseIn
 }
 
 func (r *RootResolver) purchaseProducts(input *PurchaseInput, productIdQuantity map[string]int, charge float64) (*PurchaseResolver, error) {
-	// TODO: Check if products are available!!!
+	if !r.productsAvailable(productIdQuantity) {
+		return nil, errors.New("some of the products are not available. check their inventoryCount")
+	}
 
 	// *Get money from credit card*
 	err := r.paymentGate.Charge(&service.CreditCardDetails{
@@ -105,6 +107,26 @@ func (r *RootResolver) purchaseProducts(input *PurchaseInput, productIdQuantity 
 	}
 
 	return &PurchaseResolver{purchase: purchase}, nil
+}
+
+func (r *RootResolver) productsAvailable(productIdQuantity map[string]int) bool {
+	var productIds []string
+	for id := range productIdQuantity {
+		productIds = append(productIds, id)
+	}
+
+	products := r.productsRepo.GetMany(productIds)
+	if len(products) != len(productIdQuantity) {
+		return false
+	}
+	for _, product := range products {
+		quantity, exists := productIdQuantity[product.Id]
+		if !exists || quantity > product.InventoryCount {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (p *PurchaseResolver) Id() string {
